@@ -87,6 +87,7 @@ def generate_phylo_tree(msa, outfilename, format='newick'):
     tree = cogent.app.fasttree.build_tree_from_alignment(aln, cogent.PROTEIN)
     tree.writeToFile(outfilename, format=format)
 
+
 def main():
     """Main function of the program. Pretty explanatory, eh."""
 
@@ -124,7 +125,6 @@ def main():
                         help="File format of output tree files. Default is "
                         "newick, alternative format is xml.",
                         default="newick")
-
 
     args = parser.parse_args()
 
