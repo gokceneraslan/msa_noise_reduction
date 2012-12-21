@@ -89,12 +89,12 @@ def main():
                         "noise reduction process. stdout is used if not "
                         "specified.")
 
-    parser.add_argument("--input-format",
+    parser.add_argument("-I", "--input-format",
                         help="Input file format, \"fasta\" is the default. "
                         "Available formats: clustal, phylip, stockholm, "
                         "emboss.")
 
-    parser.add_argument("--output-format",
+    parser.add_argument("-O", "--output-format",
                         help="Output file format, \"fasta\" is the default. "
                         "Available formats: clustal, phylip, stockholm, "
                         "emboss.")
