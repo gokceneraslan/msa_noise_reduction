@@ -22,6 +22,9 @@ from collections import Counter
 
 from Bio import AlignIO, Align, Seq, SeqRecord
 
+import cogent
+import cogent.app.fasttree
+
 
 # matlab style indexing i.e.: x = 'AGCGAGGC'; index_string(x, [0, 3, 4]-> 'AGA'
 index_string = lambda string, i: ''.join([string[x] for x in i])
@@ -74,6 +77,16 @@ def filter_msa_object_columns(msa, filter_func):
     return Align.MultipleSeqAlignment(new_msa)
 
 
+def generate_phylo_tree(msa, outfilename, format='newick'):
+    """Generates phylogenetic tree from given sequence alignment file."""
+
+    aln = cogent.LoadSeqs(data=msa,
+                          moltype=cogent.PROTEIN,
+                          aligned=True)
+
+    tree = cogent.app.fasttree.build_tree_from_alignment(aln, cogent.PROTEIN)
+    tree.writeToFile(outfilename, format=format)
+
 def main():
     """Main function of the program. Pretty explanatory, eh."""
 
@@ -99,6 +112,20 @@ def main():
                         "Available formats: clustal, phylip, stockholm, "
                         "emboss.")
 
+    parser.add_argument("-d", "--output-tree-reduced",
+                        help="Phylogenetic tree is generated from the "
+                        "noise-reduced alignment file.")
+
+    parser.add_argument("-g", "--output-tree-original",
+                        help="Phylogenetic tree is generated from the "
+                        "original alignment file.")
+
+    parser.add_argument("-T", "--tree-format",
+                        help="File format of output tree files. Default is "
+                        "newick, alternative format is xml.",
+                        default="newick")
+
+
     args = parser.parse_args()
 
     if args.input:
@@ -114,13 +141,25 @@ def main():
     input_format = "fasta" if not args.input_format else args.input_format
     output_format = "fasta" if not args.output_format else args.output_format
 
-    msa = AlignIO.read(input_file, input_format)
-    msa = filter_msa_object_columns(msa, is_noisy)
+    original_msa = AlignIO.read(input_file, input_format)
+    reduced_msa = filter_msa_object_columns(original_msa, is_noisy)
 
-    AlignIO.write(msa, output_file, output_format)
+    AlignIO.write(reduced_msa, output_file, output_format)
 
     if args.output:
         output_file.close()
+
+    tree_format = "newick" if not args.tree_format else args.tree_format
+
+    if args.output_tree_reduced:
+        generate_phylo_tree(reduced_msa.format("fasta"),
+                            args.output_tree_reduced,
+                            format=tree_format)
+
+    if args.output_tree_original:
+        generate_phylo_tree(original_msa.format("fasta"),
+                            args.output_tree_original,
+                            format=tree_format)
 
 
 if __name__ == '__main__':
