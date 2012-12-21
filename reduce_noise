@@ -1,0 +1,114 @@
+#!/usr/bin/env python
+
+# Reducing noise in protein multialignments
+# Copyright (C) 2012 Gokcen Eraslan, Basak Eraslan, Javeria Ali
+#
+# This program is free software: you can redistribute it and/or modify
+# it under the terms of the GNU General Public License as published by
+# the Free Software Foundation, either version 3 of the License, or
+# (at your option) any later version.
+#
+# This program is distributed in the hope that it will be useful,
+# but WITHOUT ANY WARRANTY; without even the implied warranty of
+# MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
+# GNU General Public License for more details.
+#
+# You should have received a copy of the GNU General Public License
+# along with this program.  If not, see <http://www.gnu.org/licenses/>.
+
+import sys
+import argparse
+from collections import Counter
+
+from Bio import AlignIO, Align, Seq, SeqRecord
+
+
+# matlab style indexing i.e.: x = 'AGCGAGGC'; index_string(x, [0, 3, 4]-> 'AGA'
+index_string = lambda string, i: ''.join([string[x] for x in i])
+
+
+def is_noisy(column):
+    """Determines whether given column is noisy or not"""
+
+    # Counter is a neat class to convert a sequence into a dictionary holding
+    # the count of each item. Here is an example Counter of a msa column:
+    # Counter({'S': 7, 'K': 3, 'N': 2, 'D': 1, 'Q': 1, 'R': 1, 'T': 1})
+
+    counter = Counter(column)
+    col_length = len(column)
+
+    # there are more than 50% indels
+    if counter["-"] > col_length / 2:
+        return False
+
+    # at least 50% of amino acids are unique
+    if len(counter) >= col_length / 2:
+        return False
+
+    if "-" in counter:
+        counter.pop("-")
+
+    # no amino acid appears more than twice
+    if not [v for v in counter.values() if v > 2]:
+        return False
+
+    return True
+
+
+def filter_msa_object_columns(msa, filter_func):
+    """Filters out the columns if given callable returns False"""
+
+    num_columns = len(msa[0])
+    valid_columns = [col for col in range(num_columns)
+                         if filter_func(msa[:, col])]
+
+    assert num_columns != valid_columns, "All columns seem noisy, exiting..."
+
+    new_msa = []
+
+    for record in msa:
+        new_msa.append(SeqRecord.SeqRecord(
+                       Seq.Seq(index_string(record.seq, valid_columns)),
+                               record.id, record.name, record.description))
+
+    return Align.MultipleSeqAlignment(new_msa)
+
+
+def main():
+    """Main function of the program. Pretty explanatory, eh."""
+
+    parser = argparse.ArgumentParser(description="Reducing noise in protein"
+                                                 "multialignments")
+
+    parser.add_argument("-i", "--input",
+                        help="Input fasta file from which the noise to be "
+                        "reduced. By default, stdin is used.")
+
+    parser.add_argument("-o", "--output",
+                        help="Name of the output file to be created upon the "
+                        "noise reduction process. stdout is used if not "
+                        "specified.")
+
+    args = parser.parse_args()
+
+    if args.input:
+        input_file = open(args.input, "r")
+    else:
+        input_file = sys.stdin
+
+    if args.output:
+        output_file = open(args.output, "w")
+    else:
+        output_file = sys.stdout
+
+    msa = AlignIO.read(input_file, "fasta")
+    msa = filter_msa_object_columns(msa, is_noisy)
+
+    AlignIO.write(msa, output_file, "fasta")
+
+    if args.output:
+        output_file.close()
+
+
+if __name__ == '__main__':
+    main()
