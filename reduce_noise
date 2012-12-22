@@ -189,7 +189,7 @@ def main():
                              else args.tree_rendering_format)
 
     tree_generator = ("fasttree" if not args.tree_generator else
-                     args.tree_generator)
+                     args.tree_generator.lower())
 
     if args.output_tree_reduced:
         generate_phylo_tree(reduced_msa.format("fasta"),
