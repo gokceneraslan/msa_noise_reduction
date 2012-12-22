@@ -88,7 +88,8 @@ def generate_phylo_tree(msa, outfilename, format, image_format, tree_module):
 
     aln = cogent.LoadSeqs(data=msa,
                           moltype=cogent.PROTEIN,
-                          aligned=True)
+                          aligned=True,
+                          label_to_name=lambda x: x.split()[0])
 
     assert tree_module in ("fasttree", "clearcut", "clustalw",
                            "muscle", "raxml"), "Given tree generator is " \
