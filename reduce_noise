@@ -93,7 +93,7 @@ def generate_phylo_tree(msa, outfilename, format, image_format):
     tree = cogent.app.fasttree.build_tree_from_alignment(aln, cogent.PROTEIN)
     tree.writeToFile(outfilename, format=format)
 
-    ete_tree = ete2.Tree(outfilename)
+    ete_tree = ete2.PhyloTree(outfilename, msa)
     tree_filename, ext = os.path.splitext(outfilename)
     tree_filename += ".%s" % image_format
 
