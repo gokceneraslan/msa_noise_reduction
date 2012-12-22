@@ -19,6 +19,7 @@
 import sys
 import argparse
 import os
+import importlib
 from collections import Counter
 
 # Biopython is used to parse and manipulate fasta formatted MSA files
@@ -26,7 +27,6 @@ from Bio import AlignIO, Align, Seq, SeqRecord
 
 # PyCogent is used to generate phylogenetic tree from the fasta files
 import cogent
-import cogent.app.fasttree
 
 # ETE toolkit is used to render newick trees as images
 import ete2
@@ -83,14 +83,19 @@ def filter_msa_object_columns(msa, filter_func):
     return Align.MultipleSeqAlignment(new_msa)
 
 
-def generate_phylo_tree(msa, outfilename, format, image_format):
+def generate_phylo_tree(msa, outfilename, format, image_format, tree_module):
     """Generates phylogenetic tree from given sequence alignment file."""
 
     aln = cogent.LoadSeqs(data=msa,
                           moltype=cogent.PROTEIN,
                           aligned=True)
 
-    tree = cogent.app.fasttree.build_tree_from_alignment(aln, cogent.PROTEIN)
+    assert tree_module in ("fasttree", "clearcut", "clustalw",
+                           "muscle", "raxml"), "Given tree generator is " \
+                           "not supported."
+
+    tree_generator = importlib.import_module("cogent.app.%s" % tree_module)
+    tree = tree_generator.build_tree_from_alignment(aln, cogent.PROTEIN)
     tree.writeToFile(outfilename, format=format)
 
     ete_tree = ete2.PhyloTree(outfilename, msa)
@@ -150,6 +155,12 @@ def main():
                         "are pdf and svg.",
                         default="png")
 
+    parser.add_argument("-b", "--tree-generator",
+                        help="Use given program to generate phylogenetic "
+                        "trees. Default is fasttree. Alternatives are: "
+                        "clearcut, clustalw, muscle and raxml. ",
+                        default="fasttree")
+
     args = parser.parse_args()
 
     if args.input:
@@ -177,17 +188,22 @@ def main():
     tree_rendering_format = ("png" if not args.tree_rendering_format
                              else args.tree_rendering_format)
 
+    tree_generator = ("fasttree" if not args.tree_generator else
+                     args.tree_generator)
+
     if args.output_tree_reduced:
         generate_phylo_tree(reduced_msa.format("fasta"),
                             args.output_tree_reduced,
                             tree_format,
-                            tree_rendering_format)
+                            tree_rendering_format,
+                            tree_generator)
 
     if args.output_tree_original:
         generate_phylo_tree(original_msa.format("fasta"),
                             args.output_tree_original,
                             tree_format,
-                            tree_rendering_format)
+                            tree_rendering_format,
+                            tree_generator)
 
 
 if __name__ == '__main__':
