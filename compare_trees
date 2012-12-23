@@ -1,0 +1,101 @@
+#!/usr/bin/env python
+
+# Phylogenetic tree comparison
+# Copyright (C) 2012 Gokcen Eraslan, Basak Eraslan, Javeria Ali
+#
+# This program is free software: you can redistribute it and/or modify
+# it under the terms of the GNU General Public License as published by
+# the Free Software Foundation, either version 3 of the License, or
+# (at your option) any later version.
+#
+# This program is distributed in the hope that it will be useful,
+# but WITHOUT ANY WARRANTY; without even the implied warranty of
+# MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
+# GNU General Public License for more details.
+#
+# You should have received a copy of the GNU General Public License
+# along with this program.  If not, see <http://www.gnu.org/licenses/>.
+
+import argparse
+import os
+
+import dendropy
+
+
+def compare_trees(ref_tree, other, method):
+    """Compare trees using given method"""
+
+    assert method in ("symmetric_difference",
+                      "euclidean_distance",
+                      "robinson_foulds_distance"), "Method not supported."
+
+    comparison_func = getattr(ref_tree, method)
+
+    if not isinstance(other, (list, tuple)):
+        return comparison_func(other)
+    else:
+        return [comparison_func(x) for x in other]
+
+
+def find_files(directory, extension):
+    """Find files having a particular extension."""
+
+    file_list = []
+
+    for root, dirs, files in os.walk(directory):
+
+        # skip hidden directories
+        dirs[:] = [d for d in dirs if not d.startswith(".")]
+
+        file_list.extend([os.path.join(root, f) for f in files
+                          if os.path.splitext(f)[1] == extension])
+
+    return file_list
+
+
+def main():
+    """Main function"""
+
+    parser = argparse.ArgumentParser(description="Phylogenetic tree "
+                                                 "comparison.")
+
+    parser.add_argument("reference",
+                        help="Reference tree to be used in the comparison.")
+
+    parser.add_argument("tree_dir", metavar='tree-dir',
+                        help="Directory containing Newick trees that will be "
+                        "compared to the reference tree. File extension of "
+                        "the reference tree is used to detect newick trees.")
+
+    parser.add_argument("output",
+                        help="Name of the output file to be generated.")
+
+    args = parser.parse_args()
+
+    assert os.path.isdir(args.tree_dir), "tree-dir is not a directory."
+    assert os.path.isfile(args.reference), "reference is not a file."
+
+    phylo_ref_tree = dendropy.Tree.get_from_path(args.reference, "newick")
+    trees = sorted(find_files(args.tree_dir, ".tree"))
+    phylo_trees = [dendropy.Tree.get_from_path(t, schema='newick')
+                   for t in trees]
+
+    with open(args.output, "w") as outfile:
+        sym = compare_trees(phylo_ref_tree, phylo_trees,
+                            "symmetric_difference")
+
+        euc = compare_trees(phylo_ref_tree, phylo_trees, "euclidean_distance")
+        rob = compare_trees(phylo_ref_tree, phylo_trees,
+                            "robinson_foulds_distance")
+
+        outfile.write("\t".join(["Reference tree", "Other tree",
+                                 "Symmetric difference", "Euclidean distance",
+                                 "Robinson-Foulds distance"]) + "\n")
+
+        for d1, d2, d3, tree in zip(sym, euc, rob, trees):
+
+            outfile.write("\t".join([args.reference, tree,
+                                     str(d1), str(d2), str(d3)]) + '\n')
+
+if __name__ == '__main__':
+    main()
