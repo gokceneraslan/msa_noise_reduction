@@ -114,7 +114,7 @@ def generate_phylo_tree(msa, outfilename, format, image_format, tree_module):
 def main():
     """Main function of the program. Pretty explanatory, eh."""
 
-    parser = argparse.ArgumentParser(description="Reducing noise in protein"
+    parser = argparse.ArgumentParser(description="Reducing noise in protein "
                                                  "multialignments")
 
     parser.add_argument("-i", "--input",
