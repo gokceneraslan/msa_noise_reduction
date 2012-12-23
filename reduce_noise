@@ -48,28 +48,28 @@ def is_noisy(column):
 
     # there are more than 50% indels
     if counter["-"] > col_length / 2:
-        return False
+        return True
 
     # at least 50% of amino acids are unique
     if len(counter) >= col_length / 2:
-        return False
+        return True
 
     if "-" in counter:
         counter.pop("-")
 
     # no amino acid appears more than twice
     if not [v for v in counter.values() if v > 2]:
-        return False
+        return True
 
-    return True
+    return False
 
 
-def filter_msa_object_columns(msa, filter_func):
+def filter_noise_in_columns(msa, noise_func):
     """Filters out the columns if given callable returns False"""
 
     num_columns = len(msa[0])
     valid_columns = [col for col in range(num_columns)
-                         if filter_func(msa[:, col])]
+                         if not noise_func(msa[:, col])]
 
     assert num_columns != valid_columns, "All columns seem noisy, exiting..."
 
@@ -178,7 +178,7 @@ def main():
     output_format = "fasta" if not args.output_format else args.output_format
 
     original_msa = AlignIO.read(input_file, input_format)
-    reduced_msa = filter_msa_object_columns(original_msa, is_noisy)
+    reduced_msa = filter_noise_in_columns(original_msa, is_noisy)
 
     AlignIO.write(reduced_msa, output_file, output_format)
 
