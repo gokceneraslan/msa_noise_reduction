@@ -25,12 +25,6 @@ from collections import Counter
 # Biopython is used to parse and manipulate fasta formatted MSA files
 from Bio import AlignIO, Align, Seq, SeqRecord
 
-# PyCogent is used to generate phylogenetic tree from the fasta files
-import cogent
-
-# ETE toolkit is used to render newick trees as images
-import ete2
-
 
 # matlab style indexing i.e.: x = 'AGCGAGGC'; index_string(x, [0, 3, 4]-> 'AGA'
 index_string = lambda string, i: ''.join([string[x] for x in i])
@@ -85,6 +79,12 @@ def filter_noise_in_columns(msa, noise_func):
 
 def generate_phylo_tree(msa, outfilename, format, image_format, tree_module):
     """Generates phylogenetic tree from given sequence alignment file."""
+
+    # PyCogent is used to generate phylogenetic tree from the fasta files
+    import cogent
+
+    # ETE toolkit is used to render newick trees as images
+    import ete2
 
     aln = cogent.LoadSeqs(data=msa,
                           moltype=cogent.PROTEIN,
