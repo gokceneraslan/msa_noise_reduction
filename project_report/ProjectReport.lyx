@@ -1,0 +1,1968 @@
+#LyX 2.0 created this file. For more info see http://www.lyx.org/
+\lyxformat 413
+\begin_document
+\begin_header
+\textclass article
+\begin_preamble
+\usepackage{booktabs}
+\usepackage{graphicx}
+\end_preamble
+\use_default_options true
+\maintain_unincluded_children false
+\language english
+\language_package default
+\inputencoding auto
+\fontencoding global
+\font_roman default
+\font_sans default
+\font_typewriter default
+\font_default_family default
+\use_non_tex_fonts false
+\font_sc false
+\font_osf false
+\font_sf_scale 100
+\font_tt_scale 100
+
+\graphics default
+\default_output_format default
+\output_sync 0
+\bibtex_command default
+\index_command default
+\float_placement H
+\paperfontsize default
+\spacing single
+\use_hyperref false
+\papersize default
+\use_geometry false
+\use_amsmath 1
+\use_esint 1
+\use_mhchem 1
+\use_mathdots 1
+\cite_engine basic
+\use_bibtopic false
+\use_indices false
+\paperorientation portrait
+\suppress_date false
+\use_refstyle 1
+\index Index
+\shortcut idx
+\color #008000
+\end_index
+\secnumdepth 3
+\tocdepth 3
+\paragraph_separation indent
+\paragraph_indentation default
+\quotes_language english
+\papercolumns 1
+\papersides 1
+\paperpagestyle default
+\tracking_changes false
+\output_changes false
+\html_math_output 0
+\html_css_as_file 0
+\html_be_strict false
+\end_header
+
+\begin_body
+
+\begin_layout Title
+Reducing noise in protein multialignments
+\end_layout
+
+\begin_layout Author
+Gökçen Eraslan (euSYSBIO / gokcen@kth.se)
+\begin_inset Newline newline
+\end_inset
+
+
+\begin_inset space ~
+\end_inset
+
+
+\begin_inset Newline newline
+\end_inset
+
+Başak Eraslan (euSYSBIO / eraslan@kth.se)
+\begin_inset Newline newline
+\end_inset
+
+
+\begin_inset space ~
+\end_inset
+
+
+\begin_inset Newline newline
+\end_inset
+
+Javeria Ali (euSYSBIO / javeriaa@kth.se)
+\begin_inset Newline newline
+\end_inset
+
+
+\begin_inset space ~
+\end_inset
+
+
+\begin_inset Newline newline
+\end_inset
+
+Project URL: 
+\begin_inset CommandInset href
+LatexCommand href
+name "github.com/gokceneraslan/msa_noise_reduction"
+target "github.com/gokceneraslan/msa_noise_reduction"
+
+\end_inset
+
+
+\end_layout
+
+\begin_layout Standard
+\begin_inset Newpage pagebreak
+\end_inset
+
+
+\end_layout
+
+\begin_layout Standard
+\begin_inset CommandInset toc
+LatexCommand tableofcontents
+
+\end_inset
+
+
+\end_layout
+
+\begin_layout Standard
+\begin_inset Newpage pagebreak
+\end_inset
+
+
+\end_layout
+
+\begin_layout Section
+Introduction
+\end_layout
+
+\begin_layout Standard
+In this project a method for noise reduction in multialignments is implemented
+ and evaluated with respect to its effect on pylogeny inference.
+ In this method, a column is considered as noisy if:
+\end_layout
+
+\begin_layout Itemize
+there are more than 50% indels or 
+\end_layout
+
+\begin_layout Itemize
+at least 50% of amino acids are unique or
+\end_layout
+
+\begin_layout Itemize
+no amino acid appears more than twice.
+\end_layout
+
+\begin_layout Standard
+In order to validate the method implementation, null data is used as input
+ and the outputs are verified.
+ Thereafter, the method is applied on data which consists of six directories
+ that each contains the reference tree and 300 multialignments derived from
+ that tree by simulation.
+ After generating the noise-reduced counterparts of the multialignments,
+ newick trees corresponding to both the original multialignmens and the
+ noise-reduced multialignmens are created by using fasttree submodule of
+ 
+\begin_inset CommandInset href
+LatexCommand href
+name "PyCogent"
+target "http://pycogent.sourceforge.net/"
+
+\end_inset
+
+ module.
+ Finally, the symmetric distances between these newick trees with the reference
+ trees are computed by using 
+\begin_inset CommandInset href
+LatexCommand href
+name "DendroPy"
+target "http://packages.python.org/DendroPy/"
+
+\end_inset
+
+ Python module and then the statistics on these distance values are worked
+ out.
+\end_layout
+
+\begin_layout Section
+Project Details
+\end_layout
+
+\begin_layout Subsection
+Implementation details and usage of reduce_noise Python script
+\end_layout
+
+\begin_layout Standard
+In the first step of the project, a Python script which generates the noise-redu
+ced multialignments and produces the newick trees of both the original and
+ noise-reduced alignments, is implemented.
+ It takes a multialignment file as input (in formats: fasta, clustal, phylip,
+ stockholm, emboss) and outputs:
+\end_layout
+
+\begin_layout Enumerate
+A file (in formats: newick, xml ) which contains the newick tree of the
+ original multialignment.
+ Additionally, a file (in formats: png, pdf, svg) which displays this phylogenet
+ic tree visually can be generated optionally using 
+\begin_inset CommandInset href
+LatexCommand href
+name "ete2"
+target "http://ete.cgenomics.org/"
+
+\end_inset
+
+ Python module.
+\end_layout
+
+\begin_layout Enumerate
+A file (in formats: fasta, clustal, phylip, stockholm, emboss) which contains
+ the noise-reduced counterpart multialignment of the original input multialignme
+nt
+\end_layout
+
+\begin_layout Enumerate
+A file (in formats: newick, xml ) which contains the newick tree of the
+ noise-reduced multialignment.
+ Additionally, a file (in formats: png, pdf, svg) which displays this phylogenet
+ic tree visually can be generated optionally.
+\end_layout
+
+\begin_layout Standard
+The usage and optional arguments of the script can be displayed if it is
+ invoked with 
+\begin_inset Quotes eld
+\end_inset
+
+-h
+\begin_inset Quotes erd
+\end_inset
+
+ argument:
+\end_layout
+
+\begin_layout Standard
+\begin_inset Box Shadowbox
+position "t"
+hor_pos "c"
+has_inner_box 1
+inner_pos "t"
+use_parbox 0
+use_makebox 0
+width "100col%"
+special "none"
+height "1in"
+height_special "totalheight"
+status open
+
+\begin_layout Plain Layout
+\begin_inset listings
+lstparams "basicstyle={\footnotesize\ttfamily},breaklines=true,tabsize=4"
+inline false
+status open
+
+\begin_layout Plain Layout
+
+usage: reduce_noise [-h] [-i INPUT_ALIGNMENT_FILE] [-o OUTPUT_ALIGNMENT_FILE]
+ [-I INPUT_ALIGNMENT_FORMAT] [-O OUTPUT_ALIGNMENT_FORMAT] [-d REDUCED_OUTPUT_TRE
+E_FILE] [-g ORIGINAL_OUTPUT_TREE_FILE] [-T TREE_FORMAT] [-R TREE_RENDERING_FORMA
+T] [-b TREE_GENERATOR]
+\end_layout
+
+\begin_layout Plain Layout
+
+\end_layout
+
+\begin_layout Plain Layout
+
+Reducing noise in protein multialignments
+\end_layout
+
+\begin_layout Plain Layout
+
+\end_layout
+
+\begin_layout Plain Layout
+
+optional arguments:
+\end_layout
+
+\begin_layout Plain Layout
+
+	-h, --help
+\end_layout
+
+\begin_layout Plain Layout
+
+		show this help message and exit   
+\end_layout
+
+\begin_layout Plain Layout
+
+	-i INPUT_ALIGNMENT_FILE, --input INPUT_ALIGNMENT_FILE
+\end_layout
+
+\begin_layout Plain Layout
+
+		Input file from which the noise to be reduced.
+ By default, stdin is used.
+\end_layout
+
+\begin_layout Plain Layout
+
+	-o OUTPUT_ALIGNMENT_FILE, --output OUTPUT_ALIGNMENT_FILE
+\end_layout
+
+\begin_layout Plain Layout
+
+		Name of the output file to be created upon the noise reduction process.
+ stdout is used if not specified.
+\end_layout
+
+\begin_layout Plain Layout
+
+	-I INPUT_ALIGNMENT_FORMAT, --input-format INPUT_ALIGNMENT_FORMAT
+\end_layout
+
+\begin_layout Plain Layout
+
+		Input file format, "fasta" is the default.
+ Available formats: clustal, phylip, stockholm, emboss.
+\end_layout
+
+\begin_layout Plain Layout
+
+	-O OUTPUT_ALIGNMENT_FORMAT, --output-format OUTPUT_ALIGNMENT_FORMAT
+\end_layout
+
+\begin_layout Plain Layout
+
+		Output file format, "fasta" is the default.
+ Available formats: clustal, phylip, stockholm, emboss.
+\end_layout
+
+\begin_layout Plain Layout
+
+	-d REDUCED_OUTPUT_TREE_FILE, --output-tree-reduced REDUCED_OUTPUT_TREE_FILE
+\end_layout
+
+\begin_layout Plain Layout
+
+		Phylogenetic tree is generated from the noise-reduced alignment file.
+\end_layout
+
+\begin_layout Plain Layout
+
+	-g ORIGINAL_OUTPUT_TREE_FILE, --output-tree-original ORIGINAL_OUTPUT_TREE_FILE
+\end_layout
+
+\begin_layout Plain Layout
+
+		Phylogenetic tree is generated from the original alignment file.
+\end_layout
+
+\begin_layout Plain Layout
+
+	-T TREE_FORMAT, --tree-format TREE_FORMAT
+\end_layout
+
+\begin_layout Plain Layout
+
+		File format of output tree files.
+ Default is newick, alternative format is xml.
+\end_layout
+
+\begin_layout Plain Layout
+
+	-R TREE_RENDERING_FORMAT, --tree-rendering-format TREE_RENDERING_FORMAT
+\end_layout
+
+\begin_layout Plain Layout
+
+		Image format to be used in rendering generated trees.
+ This option is used with the --output-tree-* options.
+ Default value is png.
+ Alternative formats are pdf and svg.
+\end_layout
+
+\begin_layout Plain Layout
+
+	-b TREE_GENERATOR, --tree-generator TREE_GENERATOR
+\end_layout
+
+\begin_layout Plain Layout
+
+		Use given program to generate phylogenetic trees.
+ Default is fasttree.
+ Alternatives are: clearcut, clustalw, muscle and raxml.
+\end_layout
+
+\end_inset
+
+
+\end_layout
+
+\end_inset
+
+
+\end_layout
+
+\begin_layout Subsection
+Validation of reduce-noise Python script 
+\end_layout
+
+\begin_layout Subsection
+Running reduce-noise Python script on test data set
+\end_layout
+
+\begin_layout Standard
+The test data contains six directories: asymmetric_0.5, asymmetric_1.0, asymmetric
+_2.0, symmetric_0.5, symmetric_1.0, and symmetric_2.0.
+ Each directory contains one tree file having a reference tree, and 300
+ alignments that were created by evolving sequences along the reference
+ tree and then using muscle programme to align the resulting sequences.
+ The number in the filename denotes the average amount of mutations per
+ site in the sequences.
+ For example, the asymmetric_2.0 and symmetric_2.0 directories has alignments
+ with on average two mutations per sequence position, from the root to the
+ leaves.
+\end_layout
+
+\begin_layout Standard
+The files containing the noise reduced multialignments and the files containing
+ the newick trees corresponding to the original and noise reduced multialignment
+s are generated when the reduce-noise Python script is run for all input
+ files with the parameters as follows:
+\end_layout
+
+\begin_layout Standard
+\begin_inset Box Shadowbox
+position "t"
+hor_pos "c"
+has_inner_box 1
+inner_pos "t"
+use_parbox 0
+use_makebox 0
+width "100col%"
+special "none"
+height "1in"
+height_special "totalheight"
+status open
+
+\begin_layout Plain Layout
+\begin_inset listings
+lstparams "basicstyle={\small},breaklines=true"
+inline false
+status open
+
+\begin_layout Plain Layout
+
+$ ./reduce_noise
+\end_layout
+
+\begin_layout Plain Layout
+
+	-i <inAlignmentFileName>
+\end_layout
+
+\begin_layout Plain Layout
+
+	-o <outAlignmentFileName>
+\end_layout
+
+\begin_layout Plain Layout
+
+	-d <reducedOutputTreeFileName>
+\end_layout
+
+\begin_layout Plain Layout
+
+	-g <originalOutputTreeFileName>
+\end_layout
+
+\begin_layout Plain Layout
+
+	-R svg
+\end_layout
+
+\end_inset
+
+
+\end_layout
+
+\end_inset
+
+
+\end_layout
+
+\begin_layout Standard
+In order to show an example of the outcome columns of noise reducing operation,
+ In Figures 
+\begin_inset CommandInset ref
+LatexCommand ref
+reference "fig:Original-multialignment-of"
+
+\end_inset
+
+ and 
+\begin_inset CommandInset ref
+LatexCommand ref
+reference "fig:Noise-reduced-multialignment-of"
+
+\end_inset
+
+, the columns in s001.align.1 data in Asymmetric 2.0 data set is shown in its
+ original form and after the noise reducing operation is applied to them.
+ In this example, we observe that the columns which do not satisfy the given
+ constraints are filtered out as they are considered to be noisy.
+\end_layout
+
+\begin_layout Standard
+\begin_inset Float figure
+wide false
+sideways false
+status open
+
+\begin_layout Plain Layout
+
+\end_layout
+
+\begin_layout Plain Layout
+\begin_inset Caption
+
+\begin_layout Plain Layout
+Original multialignment of s001.align.1 data in Asymmetric 2.0 data set 
+\begin_inset CommandInset label
+LatexCommand label
+name "fig:Original-multialignment-of"
+
+\end_inset
+
+
+\end_layout
+
+\end_inset
+
+
+\end_layout
+
+\begin_layout Plain Layout
+\begin_inset ERT
+status open
+
+\begin_layout Plain Layout
+
+ 
+\backslash
+centerline{
+\end_layout
+
+\end_inset
+
+
+\begin_inset Graphics
+	filename original_msa.png
+	width 15cm
+
+\end_inset
+
+
+\begin_inset ERT
+status open
+
+\begin_layout Plain Layout
+
+}
+\end_layout
+
+\end_inset
+
+
+\end_layout
+
+\end_inset
+
+
+\end_layout
+
+\begin_layout Standard
+\begin_inset Float figure
+wide false
+sideways false
+status open
+
+\begin_layout Plain Layout
+\begin_inset Caption
+
+\begin_layout Plain Layout
+Noise-reduced multialignment of s001.align.1 data in Asymmetric 2.0 data set
+ 
+\begin_inset CommandInset label
+LatexCommand label
+name "fig:Noise-reduced-multialignment-of"
+
+\end_inset
+
+
+\end_layout
+
+\end_inset
+
+
+\end_layout
+
+\begin_layout Plain Layout
+\align center
+\begin_inset Graphics
+	filename noise-red-msa.png
+	scale 60
+
+\end_inset
+
+
+\end_layout
+
+\end_inset
+
+
+\end_layout
+
+\begin_layout Subsection
+Calculating the symmetric distances between generated newick trees and the
+ reference trees
+\end_layout
+
+\begin_layout Standard
+At the beginning of this step, there exists 1 reference tree file, 300 newick
+ tree files corresponding to original multialignments and 300 newick tree
+ files corresponding to noise reduced multialignments for each data directory.
+ In order to quantify the difference between these inferred newick trees
+ and their corresponding reference trees, the symmetric distances, euclidean
+ distances, and Robinson-Foulds distances are calculated between them with
+ the use of compare-trees Python script.
+ 
+\end_layout
+
+\begin_layout Standard
+For instance, these distances are calculated with respect to the reference
+ tree displayed in Figure 
+\begin_inset CommandInset ref
+LatexCommand ref
+reference "fig:Reference-newick-tree"
+
+\end_inset
+
+ for Asymmetric 2.0 data set.
+ The symmetric, euclidian and Robionson-Foulds distances of the newick tree
+ (displayed in Figure 
+\begin_inset CommandInset ref
+LatexCommand ref
+reference "fig:Original-newick-tree-corresponding"
+
+\end_inset
+
+)of original s001.align.1 data in Asymmetric 2.0 data sets are calculated to
+ be 14, 205.45, 715.55 respectively.
+ However, these distances for the newick tree (displayed in Figure 
+\begin_inset CommandInset ref
+LatexCommand ref
+reference "fig:Noise-red-newick-tree-corresponding"
+
+\end_inset
+
+) of the noise-reduced counterpart of this data are 18, 205.67 and 716.18
+ respectively.
+ Since the differences between the euclidian and Robinson-Foulds distances
+ are much smaller then symmetric distances for all of the six data sets,
+ only the symmetric distances are taken into account while the statistics
+ in the results and discussion section are prepared.
+ 
+\end_layout
+
+\begin_layout Standard
+\begin_inset Float figure
+wide false
+sideways false
+status open
+
+\begin_layout Plain Layout
+
+\end_layout
+
+\begin_layout Plain Layout
+\begin_inset Caption
+
+\begin_layout Plain Layout
+Reference newick tree of Asymmetric 2.0 data set.
+ 
+\begin_inset CommandInset label
+LatexCommand label
+name "fig:Reference-newick-tree"
+
+\end_inset
+
+ 
+\end_layout
+
+\end_inset
+
+
+\end_layout
+
+\begin_layout Plain Layout
+\begin_inset Graphics
+	filename asymmetric_2.0.svg
+	width 15cm
+
+\end_inset
+
+
+\end_layout
+
+\begin_layout Plain Layout
+
+\end_layout
+
+\end_inset
+
+
+\end_layout
+
+\begin_layout Standard
+\begin_inset Float figure
+wide false
+sideways false
+status open
+
+\begin_layout Plain Layout
+\begin_inset Caption
+
+\begin_layout Plain Layout
+Newick tree corresponding to original s001.align.1 data in Asymmetric 2.0 data
+ set.
+ 
+\begin_inset CommandInset label
+LatexCommand label
+name "fig:Original-newick-tree-corresponding"
+
+\end_inset
+
+ 
+\end_layout
+
+\end_inset
+
+
+\end_layout
+
+\begin_layout Plain Layout
+\begin_inset Graphics
+	filename origin_s001.align.1.svg
+	width 15cm
+	height 8cm
+
+\end_inset
+
+
+\end_layout
+
+\end_inset
+
+
+\end_layout
+
+\begin_layout Standard
+\begin_inset Float figure
+wide false
+sideways false
+status open
+
+\begin_layout Plain Layout
+
+\end_layout
+
+\begin_layout Plain Layout
+\begin_inset Caption
+
+\begin_layout Plain Layout
+Newick tree corresponding to noise-reduced s001.align.1 data in Asymmetric
+ 2.0 data set.
+ 
+\begin_inset CommandInset label
+LatexCommand label
+name "fig:Noise-red-newick-tree-corresponding"
+
+\end_inset
+
+
+\end_layout
+
+\end_inset
+
+
+\begin_inset Graphics
+	filename noise_red_s001.align.1.svg
+	width 15cm
+	height 8cm
+
+\end_inset
+
+
+\end_layout
+
+\begin_layout Plain Layout
+
+\end_layout
+
+\end_inset
+
+
+\end_layout
+
+\begin_layout Section
+Results and Discussion
+\end_layout
+
+\begin_layout Standard
+Even though euclidian and Robinson-Foulds distances of the concerned newick
+ trees are also calculated, since it is observed that the differences between
+ the euclidian and Robinson-Foulds distances are much smaller then symmetric
+ distances for all of the six data sets, only the statistical results concluded
+ by the examination of the symmetric distance values are presented in this
+ section.
+ In Table 
+\begin_inset CommandInset ref
+LatexCommand ref
+reference "tab:Statistics-regarding-the"
+
+\end_inset
+
+ the maximum, minimum, mean and median symmetric distance values are presented
+ for the newick trees of both the original and the noise-reduced multialignments
+ in the six data sets.
+ This table displays that in general the newick trees of the noise reduced
+ multialignments have slightly bigger symmetric distances with the reference
+ trees than the newick trees of the original multialignments have.
+ Additionally, Figure 
+\begin_inset CommandInset ref
+LatexCommand ref
+reference "fig:Results-of-the"
+
+\end_inset
+
+ presents for how many comparisons the original multialignment trees have
+ greater symmetric distance than the noise-reduced multialignment trees
+ and vice versa.
+ Again it is observed that the newick trees of the noise-reduced multialignments
+ generally have bigger symmetric distance values for all of the six data
+ sets.
+ The graphics comparing these distance values are available in Appendix
+ A.
+ 
+\end_layout
+
+\begin_layout Standard
+\begin_inset Float table
+wide false
+sideways false
+status open
+
+\begin_layout Plain Layout
+\begin_inset Caption
+
+\begin_layout Plain Layout
+Statistics regarding the symmetric distance values of original and noise
+ reduced multialignment data sets.
+ 
+\begin_inset CommandInset label
+LatexCommand label
+name "tab:Statistics-regarding-the"
+
+\end_inset
+
+
+\end_layout
+
+\end_inset
+
+
+\end_layout
+
+\begin_layout Plain Layout
+\begin_inset ERT
+status open
+
+\begin_layout Plain Layout
+
+
+\backslash
+begin{center}
+\end_layout
+
+\begin_layout Plain Layout
+
+
+\backslash
+resizebox{15cm}{!}{
+\end_layout
+
+\end_inset
+
+
+\end_layout
+
+\begin_layout Plain Layout
+\begin_inset Tabular
+<lyxtabular version="3" rows="8" columns="9">
+<features tabularvalignment="middle">
+<column alignment="center" valignment="top" width="0">
+<column alignment="center" valignment="top" width="0">
+<column alignment="center" valignment="top" width="0">
+<column alignment="center" valignment="top" width="0">
+<column alignment="center" valignment="top" width="0">
+<column alignment="center" valignment="top" width="0">
+<column alignment="center" valignment="top" width="0">
+<column alignment="center" valignment="top" width="0">
+<column alignment="center" valignment="top" width="0">
+<row>
+<cell alignment="center" valignment="top" topline="true" leftline="true" usebox="none">
+\begin_inset Text
+
+\begin_layout Plain Layout
+Data set
+\end_layout
+
+\end_inset
+</cell>
+<cell multicolumn="1" alignment="center" valignment="top" topline="true" leftline="true" usebox="none">
+\begin_inset Text
+
+\begin_layout Plain Layout
+Min
+\end_layout
+
+\end_inset
+</cell>
+<cell multicolumn="2" alignment="center" valignment="top" topline="true" leftline="true" usebox="none">
+\begin_inset Text
+
+\begin_layout Plain Layout
+
+\end_layout
+
+\end_inset
+</cell>
+<cell multicolumn="1" alignment="center" valignment="top" topline="true" leftline="true" usebox="none">
+\begin_inset Text
+
+\begin_layout Plain Layout
+Max
+\end_layout
+
+\end_inset
+</cell>
+<cell multicolumn="2" alignment="center" valignment="top" topline="true" leftline="true" usebox="none">
+\begin_inset Text
+
+\begin_layout Plain Layout
+
+\end_layout
+
+\end_inset
+</cell>
+<cell multicolumn="1" alignment="center" valignment="top" topline="true" leftline="true" usebox="none">
+\begin_inset Text
+
+\begin_layout Plain Layout
+Mean
+\end_layout
+
+\end_inset
+</cell>
+<cell multicolumn="2" alignment="center" valignment="top" topline="true" bottomline="true" leftline="true" usebox="none">
+\begin_inset Text
+
+\begin_layout Plain Layout
+
+\end_layout
+
+\end_inset
+</cell>
+<cell multicolumn="1" alignment="center" valignment="top" topline="true" leftline="true" rightline="true" usebox="none">
+\begin_inset Text
+
+\begin_layout Plain Layout
+Median
+\end_layout
+
+\end_inset
+</cell>
+<cell multicolumn="2" alignment="center" valignment="top" topline="true" leftline="true" rightline="true" usebox="none">
+\begin_inset Text
+
+\begin_layout Plain Layout
+
+\end_layout
+
+\end_inset
+</cell>
+</row>
+<row>
+<cell alignment="center" valignment="top" topline="true" bottomline="true" leftline="true" usebox="none">
+\begin_inset Text
+
+\begin_layout Plain Layout
+
+\end_layout
+
+\end_inset
+</cell>
+<cell alignment="center" valignment="top" topline="true" bottomline="true" leftline="true" usebox="none">
+\begin_inset Text
+
+\begin_layout Plain Layout
+Original
+\end_layout
+
+\end_inset
+</cell>
+<cell alignment="center" valignment="top" topline="true" bottomline="true" leftline="true" usebox="none">
+\begin_inset Text
+
+\begin_layout Plain Layout
+Noise-reduced
+\end_layout
+
+\end_inset
+</cell>
+<cell alignment="center" valignment="top" topline="true" bottomline="true" leftline="true" usebox="none">
+\begin_inset Text
+
+\begin_layout Plain Layout
+Original
+\end_layout
+
+\end_inset
+</cell>
+<cell alignment="center" valignment="top" topline="true" bottomline="true" leftline="true" usebox="none">
+\begin_inset Text
+
+\begin_layout Plain Layout
+Noise-reduced
+\end_layout
+
+\end_inset
+</cell>
+<cell alignment="center" valignment="top" topline="true" bottomline="true" leftline="true" usebox="none">
+\begin_inset Text
+
+\begin_layout Plain Layout
+Original
+\end_layout
+
+\end_inset
+</cell>
+<cell alignment="center" valignment="top" topline="true" leftline="true" usebox="none">
+\begin_inset Text
+
+\begin_layout Plain Layout
+Noise-reduced
+\end_layout
+
+\end_inset
+</cell>
+<cell alignment="center" valignment="top" topline="true" bottomline="true" leftline="true" usebox="none">
+\begin_inset Text
+
+\begin_layout Plain Layout
+Original
+\end_layout
+
+\end_inset
+</cell>
+<cell alignment="center" valignment="top" topline="true" bottomline="true" leftline="true" rightline="true" usebox="none">
+\begin_inset Text
+
+\begin_layout Plain Layout
+Noise-reduced
+\end_layout
+
+\end_inset
+</cell>
+</row>
+<row>
+<cell alignment="center" valignment="top" topline="true" leftline="true" usebox="none">
+\begin_inset Text
+
+\begin_layout Plain Layout
+Asymmetric 0.5
+\end_layout
+
+\end_inset
+</cell>
+<cell alignment="center" valignment="top" topline="true" leftline="true" usebox="none">
+\begin_inset Text
+
+\begin_layout Plain Layout
+6
+\end_layout
+
+\end_inset
+</cell>
+<cell alignment="center" valignment="top" topline="true" leftline="true" usebox="none">
+\begin_inset Text
+
+\begin_layout Plain Layout
+8
+\end_layout
+
+\end_inset
+</cell>
+<cell alignment="center" valignment="top" topline="true" leftline="true" usebox="none">
+\begin_inset Text
+
+\begin_layout Plain Layout
+26
+\end_layout
+
+\end_inset
+</cell>
+<cell alignment="center" valignment="top" topline="true" leftline="true" usebox="none">
+\begin_inset Text
+
+\begin_layout Plain Layout
+26
+\end_layout
+
+\end_inset
+</cell>
+<cell alignment="center" valignment="top" topline="true" leftline="true" usebox="none">
+\begin_inset Text
+
+\begin_layout Plain Layout
+19.49
+\end_layout
+
+\end_inset
+</cell>
+<cell alignment="center" valignment="top" topline="true" leftline="true" usebox="none">
+\begin_inset Text
+
+\begin_layout Plain Layout
+19.67
+\end_layout
+
+\end_inset
+</cell>
+<cell alignment="center" valignment="top" topline="true" leftline="true" usebox="none">
+\begin_inset Text
+
+\begin_layout Plain Layout
+20
+\end_layout
+
+\end_inset
+</cell>
+<cell alignment="center" valignment="top" topline="true" leftline="true" rightline="true" usebox="none">
+\begin_inset Text
+
+\begin_layout Plain Layout
+20
+\end_layout
+
+\end_inset
+</cell>
+</row>
+<row>
+<cell alignment="center" valignment="top" topline="true" leftline="true" usebox="none">
+\begin_inset Text
+
+\begin_layout Plain Layout
+Asymmetric 1.0
+\end_layout
+
+\end_inset
+</cell>
+<cell alignment="center" valignment="top" topline="true" leftline="true" usebox="none">
+\begin_inset Text
+
+\begin_layout Plain Layout
+10
+\end_layout
+
+\end_inset
+</cell>
+<cell alignment="center" valignment="top" topline="true" leftline="true" usebox="none">
+\begin_inset Text
+
+\begin_layout Plain Layout
+8
+\end_layout
+
+\end_inset
+</cell>
+<cell alignment="center" valignment="top" topline="true" leftline="true" usebox="none">
+\begin_inset Text
+
+\begin_layout Plain Layout
+26
+\end_layout
+
+\end_inset
+</cell>
+<cell alignment="center" valignment="top" topline="true" leftline="true" usebox="none">
+\begin_inset Text
+
+\begin_layout Plain Layout
+26
+\end_layout
+
+\end_inset
+</cell>
+<cell alignment="center" valignment="top" topline="true" leftline="true" usebox="none">
+\begin_inset Text
+
+\begin_layout Plain Layout
+20.28
+\end_layout
+
+\end_inset
+</cell>
+<cell alignment="center" valignment="top" topline="true" leftline="true" usebox="none">
+\begin_inset Text
+
+\begin_layout Plain Layout
+20.59
+\end_layout
+
+\end_inset
+</cell>
+<cell alignment="center" valignment="top" topline="true" leftline="true" usebox="none">
+\begin_inset Text
+
+\begin_layout Plain Layout
+20
+\end_layout
+
+\end_inset
+</cell>
+<cell alignment="center" valignment="top" topline="true" leftline="true" rightline="true" usebox="none">
+\begin_inset Text
+
+\begin_layout Plain Layout
+22
+\end_layout
+
+\end_inset
+</cell>
+</row>
+<row>
+<cell alignment="center" valignment="top" topline="true" leftline="true" usebox="none">
+\begin_inset Text
+
+\begin_layout Plain Layout
+Asymmetric 2.0
+\end_layout
+
+\end_inset
+</cell>
+<cell alignment="center" valignment="top" topline="true" leftline="true" usebox="none">
+\begin_inset Text
+
+\begin_layout Plain Layout
+10
+\end_layout
+
+\end_inset
+</cell>
+<cell alignment="center" valignment="top" topline="true" leftline="true" usebox="none">
+\begin_inset Text
+
+\begin_layout Plain Layout
+10
+\end_layout
+
+\end_inset
+</cell>
+<cell alignment="center" valignment="top" topline="true" leftline="true" usebox="none">
+\begin_inset Text
+
+\begin_layout Plain Layout
+26
+\end_layout
+
+\end_inset
+</cell>
+<cell alignment="center" valignment="top" topline="true" leftline="true" usebox="none">
+\begin_inset Text
+
+\begin_layout Plain Layout
+26
+\end_layout
+
+\end_inset
+</cell>
+<cell alignment="center" valignment="top" topline="true" leftline="true" usebox="none">
+\begin_inset Text
+
+\begin_layout Plain Layout
+21.27
+\end_layout
+
+\end_inset
+</cell>
+<cell alignment="center" valignment="top" topline="true" leftline="true" usebox="none">
+\begin_inset Text
+
+\begin_layout Plain Layout
+21.77
+\end_layout
+
+\end_inset
+</cell>
+<cell alignment="center" valignment="top" topline="true" leftline="true" usebox="none">
+\begin_inset Text
+
+\begin_layout Plain Layout
+22
+\end_layout
+
+\end_inset
+</cell>
+<cell alignment="center" valignment="top" topline="true" leftline="true" rightline="true" usebox="none">
+\begin_inset Text
+
+\begin_layout Plain Layout
+22
+\end_layout
+
+\end_inset
+</cell>
+</row>
+<row>
+<cell alignment="center" valignment="top" topline="true" leftline="true" usebox="none">
+\begin_inset Text
+
+\begin_layout Plain Layout
+Symmetric 0.5
+\end_layout
+
+\end_inset
+</cell>
+<cell alignment="center" valignment="top" topline="true" leftline="true" usebox="none">
+\begin_inset Text
+
+\begin_layout Plain Layout
+0
+\end_layout
+
+\end_inset
+</cell>
+<cell alignment="center" valignment="top" topline="true" leftline="true" usebox="none">
+\begin_inset Text
+
+\begin_layout Plain Layout
+4
+\end_layout
+
+\end_inset
+</cell>
+<cell alignment="center" valignment="top" topline="true" leftline="true" usebox="none">
+\begin_inset Text
+
+\begin_layout Plain Layout
+26
+\end_layout
+
+\end_inset
+</cell>
+<cell alignment="center" valignment="top" topline="true" leftline="true" usebox="none">
+\begin_inset Text
+
+\begin_layout Plain Layout
+26
+\end_layout
+
+\end_inset
+</cell>
+<cell alignment="center" valignment="top" topline="true" leftline="true" usebox="none">
+\begin_inset Text
+
+\begin_layout Plain Layout
+17.58
+\end_layout
+
+\end_inset
+</cell>
+<cell alignment="center" valignment="top" topline="true" leftline="true" usebox="none">
+\begin_inset Text
+
+\begin_layout Plain Layout
+17.8
+\end_layout
+
+\end_inset
+</cell>
+<cell alignment="center" valignment="top" topline="true" leftline="true" usebox="none">
+\begin_inset Text
+
+\begin_layout Plain Layout
+18
+\end_layout
+
+\end_inset
+</cell>
+<cell alignment="center" valignment="top" topline="true" leftline="true" rightline="true" usebox="none">
+\begin_inset Text
+
+\begin_layout Plain Layout
+18
+\end_layout
+
+\end_inset
+</cell>
+</row>
+<row>
+<cell alignment="center" valignment="top" topline="true" leftline="true" usebox="none">
+\begin_inset Text
+
+\begin_layout Plain Layout
+Symmetric 1.0
+\end_layout
+
+\end_inset
+</cell>
+<cell alignment="center" valignment="top" topline="true" leftline="true" usebox="none">
+\begin_inset Text
+
+\begin_layout Plain Layout
+4
+\end_layout
+
+\end_inset
+</cell>
+<cell alignment="center" valignment="top" topline="true" leftline="true" usebox="none">
+\begin_inset Text
+
+\begin_layout Plain Layout
+4
+\end_layout
+
+\end_inset
+</cell>
+<cell alignment="center" valignment="top" topline="true" leftline="true" usebox="none">
+\begin_inset Text
+
+\begin_layout Plain Layout
+26
+\end_layout
+
+\end_inset
+</cell>
+<cell alignment="center" valignment="top" topline="true" leftline="true" usebox="none">
+\begin_inset Text
+
+\begin_layout Plain Layout
+26
+\end_layout
+
+\end_inset
+</cell>
+<cell alignment="center" valignment="top" topline="true" leftline="true" usebox="none">
+\begin_inset Text
+
+\begin_layout Plain Layout
+18.27
+\end_layout
+
+\end_inset
+</cell>
+<cell alignment="center" valignment="top" topline="true" leftline="true" usebox="none">
+\begin_inset Text
+
+\begin_layout Plain Layout
+18.72
+\end_layout
+
+\end_inset
+</cell>
+<cell alignment="center" valignment="top" topline="true" leftline="true" usebox="none">
+\begin_inset Text
+
+\begin_layout Plain Layout
+18
+\end_layout
+
+\end_inset
+</cell>
+<cell alignment="center" valignment="top" topline="true" leftline="true" rightline="true" usebox="none">
+\begin_inset Text
+
+\begin_layout Plain Layout
+20
+\end_layout
+
+\end_inset
+</cell>
+</row>
+<row>
+<cell alignment="center" valignment="top" topline="true" bottomline="true" leftline="true" usebox="none">
+\begin_inset Text
+
+\begin_layout Plain Layout
+Symmetric 2.0
+\end_layout
+
+\end_inset
+</cell>
+<cell alignment="center" valignment="top" topline="true" bottomline="true" leftline="true" usebox="none">
+\begin_inset Text
+
+\begin_layout Plain Layout
+10
+\end_layout
+
+\end_inset
+</cell>
+<cell alignment="center" valignment="top" topline="true" bottomline="true" leftline="true" usebox="none">
+\begin_inset Text
+
+\begin_layout Plain Layout
+10
+\end_layout
+
+\end_inset
+</cell>
+<cell alignment="center" valignment="top" topline="true" bottomline="true" leftline="true" usebox="none">
+\begin_inset Text
+
+\begin_layout Plain Layout
+26
+\end_layout
+
+\end_inset
+</cell>
+<cell alignment="center" valignment="top" topline="true" bottomline="true" leftline="true" usebox="none">
+\begin_inset Text
+
+\begin_layout Plain Layout
+26
+\end_layout
+
+\end_inset
+</cell>
+<cell alignment="center" valignment="top" topline="true" bottomline="true" leftline="true" usebox="none">
+\begin_inset Text
+
+\begin_layout Plain Layout
+19.83
+\end_layout
+
+\end_inset
+</cell>
+<cell alignment="center" valignment="top" topline="true" bottomline="true" leftline="true" usebox="none">
+\begin_inset Text
+
+\begin_layout Plain Layout
+20.67
+\end_layout
+
+\end_inset
+</cell>
+<cell alignment="center" valignment="top" topline="true" bottomline="true" leftline="true" usebox="none">
+\begin_inset Text
+
+\begin_layout Plain Layout
+20
+\end_layout
+
+\end_inset
+</cell>
+<cell alignment="center" valignment="top" topline="true" bottomline="true" leftline="true" rightline="true" usebox="none">
+\begin_inset Text
+
+\begin_layout Plain Layout
+22
+\end_layout
+
+\end_inset
+</cell>
+</row>
+</lyxtabular>
+
+\end_inset
+
+
+\end_layout
+
+\begin_layout Plain Layout
+\begin_inset ERT
+status open
+
+\begin_layout Plain Layout
+
+}
+\end_layout
+
+\begin_layout Plain Layout
+
+
+\backslash
+end{center}
+\end_layout
+
+\end_inset
+
+
+\end_layout
+
+\end_inset
+
+
+\end_layout
+
+\begin_layout Standard
+\begin_inset Float figure
+wide false
+sideways false
+status open
+
+\begin_layout Plain Layout
+\begin_inset Caption
+
+\begin_layout Plain Layout
+Results of the symmetric distance comparisons between original and noise-reduced
+ multialignments 
+\begin_inset CommandInset label
+LatexCommand label
+name "fig:Results-of-the"
+
+\end_inset
+
+
+\end_layout
+
+\end_inset
+
+
+\end_layout
+
+\begin_layout Plain Layout
+\begin_inset Graphics
+	filename overall-distance-comparison.png
+	width 15cm
+	height 7cm
+
+\end_inset
+
+
+\end_layout
+
+\end_inset
+
+
+\end_layout
+
+\begin_layout Section
+Appendices
+\end_layout
+
+\begin_layout Subsection
+Appendix A
+\end_layout
+
+\begin_layout Subsubsection
+Plots of symmetric distance values
+\end_layout
+
+\begin_layout Standard
+\begin_inset Float figure
+wide false
+sideways false
+status open
+
+\begin_layout Plain Layout
+
+\end_layout
+
+\begin_layout Plain Layout
+\begin_inset Caption
+
+\begin_layout Plain Layout
+Symmetric distance values between the newick trees of original, noise-reduced
+ multialignments with the reference tree of data set Asymmetric 0.5
+\end_layout
+
+\end_inset
+
+
+\end_layout
+
+\begin_layout Plain Layout
+\begin_inset Graphics
+	filename appbio-asymmetric-0.5.png
+	width 15cm
+	height 7cm
+
+\end_inset
+
+
+\end_layout
+
+\end_inset
+
+
+\end_layout
+
+\begin_layout Standard
+\begin_inset Float figure
+wide false
+sideways false
+status open
+
+\begin_layout Plain Layout
+
+\end_layout
+
+\begin_layout Plain Layout
+\begin_inset Caption
+
+\begin_layout Plain Layout
+Symmetric distance values between the newick trees of original, noise-reduced
+ multialignments with the reference tree of data set Asymmetric 1.0
+\end_layout
+
+\end_inset
+
+
+\end_layout
+
+\begin_layout Plain Layout
+\begin_inset Graphics
+	filename appbio-asymmetric-1.0.png
+	width 15cm
+	height 7cm
+
+\end_inset
+
+
+\end_layout
+
+\end_inset
+
+
+\end_layout
+
+\begin_layout Standard
+\begin_inset Float figure
+wide false
+sideways false
+status open
+
+\begin_layout Plain Layout
+
+\end_layout
+
+\begin_layout Plain Layout
+\begin_inset Caption
+
+\begin_layout Plain Layout
+Symmetric distance values between the newick trees of original, noise-reduced
+ multialignments with the reference tree of data set Asymmetric 2.0
+\end_layout
+
+\end_inset
+
+
+\end_layout
+
+\begin_layout Plain Layout
+\begin_inset Graphics
+	filename appbio-asymmetric-2.0.png
+	width 15cm
+	height 7cm
+
+\end_inset
+
+
+\end_layout
+
+\begin_layout Plain Layout
+
+\end_layout
+
+\end_inset
+
+
+\end_layout
+
+\begin_layout Standard
+\begin_inset Float figure
+wide false
+sideways false
+status open
+
+\begin_layout Plain Layout
+
+\end_layout
+
+\begin_layout Plain Layout
+\begin_inset Caption
+
+\begin_layout Plain Layout
+Symmetric distance values between the newick trees of original, noise-reduced
+ multialignments with the reference tree of data set Symmetric 0.5
+\end_layout
+
+\end_inset
+
+
+\end_layout
+
+\begin_layout Plain Layout
+\begin_inset Graphics
+	filename appbio-symmetric-0.5.png
+	width 15cm
+	height 7cm
+
+\end_inset
+
+
+\end_layout
+
+\begin_layout Plain Layout
+
+\end_layout
+
+\end_inset
+
+
+\end_layout
+
+\begin_layout Standard
+\begin_inset Float figure
+wide false
+sideways false
+status open
+
+\begin_layout Plain Layout
+
+\end_layout
+
+\begin_layout Plain Layout
+\begin_inset Caption
+
+\begin_layout Plain Layout
+Symmetric distance values between the newick trees of original, noise-reduced
+ multialignments with the reference tree of data set Symmetric 1.0
+\end_layout
+
+\end_inset
+
+
+\end_layout
+
+\begin_layout Plain Layout
+\begin_inset Graphics
+	filename appbio-symmetric-1.0.png
+	width 15cm
+	height 7cm
+
+\end_inset
+
+
+\end_layout
+
+\begin_layout Plain Layout
+
+\end_layout
+
+\end_inset
+
+
+\end_layout
+
+\begin_layout Standard
+\begin_inset Float figure
+wide false
+sideways false
+status open
+
+\begin_layout Plain Layout
+
+\end_layout
+
+\begin_layout Plain Layout
+\begin_inset Caption
+
+\begin_layout Plain Layout
+Symmetric distance values between the newick trees of original, noise-reduced
+ multialignments with the reference tree of data set Symmetric 2.0
+\end_layout
+
+\end_inset
+
+
+\end_layout
+
+\begin_layout Plain Layout
+\begin_inset Graphics
+	filename appbio-symmetric-2.0.png
+	width 15cm
+	height 7cm
+
+\end_inset
+
+
+\end_layout
+
+\begin_layout Plain Layout
+
+\end_layout
+
+\end_inset
+
+
+\end_layout
+
+\begin_layout Subsubsection
+Python Codes
+\end_layout
+
+\begin_layout LyX-Code
+\begin_inset CommandInset include
+LatexCommand lstinputlisting
+filename "reduce_noise"
+lstparams "basicstyle={\\footnotesize},breaklines=true,caption={``reduce\\_noise'' script},columns=flexible,frame={tb},language=Python,numbers=left,numberstyle={\\footnotesize}"
+
+\end_inset
+
+
+\end_layout
+
+\begin_layout LyX-Code
+\begin_inset CommandInset include
+LatexCommand lstinputlisting
+filename "compare_trees"
+lstparams "basicstyle={\\footnotesize},breaklines=true,caption={``compare\\_trees'' script},columns=flexible,frame={tb},language=Python,numbers=left,numberstyle={\\footnotesize}"
+
+\end_inset
+
+
+\end_layout
+
+\begin_layout LyX-Code
+
+\end_layout
+
+\end_body
+\end_document
