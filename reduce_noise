@@ -169,16 +169,16 @@ def main():
     else:
         input_file = sys.stdin
 
-    if args.output:
-        output_file = open(args.output, "w")
-    else:
-        output_file = sys.stdout
-
     input_format = "fasta" if not args.input_format else args.input_format
     output_format = "fasta" if not args.output_format else args.output_format
 
     original_msa = AlignIO.read(input_file, input_format)
     reduced_msa = filter_noise_in_columns(original_msa, is_noisy)
+
+    if args.output:
+        output_file = open(args.output, "w")
+    else:
+        output_file = sys.stdout
 
     AlignIO.write(reduced_msa, output_file, output_format)
 

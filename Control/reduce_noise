@@ -117,32 +117,32 @@ def main():
     parser = argparse.ArgumentParser(description="Reducing noise in protein "
                                                  "multialignments")
 
-    parser.add_argument("-i", "--input",
+    parser.add_argument("-i", "--input", metavar="INPUT_ALIGNMENT_FILE",
                         help="Input file from which the noise to be "
                         "reduced. By default, stdin is used.")
 
-    parser.add_argument("-o", "--output",
+    parser.add_argument("-o", "--output", metavar="OUTPUT_ALIGNMENT_FILE",
                         help="Name of the output file to be created upon the "
                         "noise reduction process. stdout is used if not "
                         "specified.")
 
-    parser.add_argument("-I", "--input-format",
-                        help="Input file format, \"fasta\" is the default. "
-                        "Available formats: clustal, phylip, stockholm, "
-                        "emboss.")
+    parser.add_argument("-I", "--input-format", metavar="INPUT_ALIGNMENT_"
+                        "FORMAT", help="Input file format, \"fasta\" is the "
+                        "default. Available formats: clustal, phylip, "
+                        "stockholm, emboss.")
 
-    parser.add_argument("-O", "--output-format",
-                        help="Output file format, \"fasta\" is the default. "
-                        "Available formats: clustal, phylip, stockholm, "
-                        "emboss.")
+    parser.add_argument("-O", "--output-format", metavar="OUTPUT_ALIGNMENT_"
+                        "FORMAT", help="Output file format, \"fasta\" is the "
+                        "default. Available formats: clustal, phylip, "
+                        "stockholm, emboss.")
 
-    parser.add_argument("-d", "--output-tree-reduced",
-                        help="Phylogenetic tree is generated from the "
-                        "noise-reduced alignment file.")
+    parser.add_argument("-d", "--output-tree-reduced", metavar="REDUCED_"
+                        "OUTPUT_TREE_FILE", help="Phylogenetic tree is "
+                        "generated from the noise-reduced alignment file.")
 
-    parser.add_argument("-g", "--output-tree-original",
-                        help="Phylogenetic tree is generated from the "
-                        "original alignment file.")
+    parser.add_argument("-g", "--output-tree-original", metavar="ORIGINAL_"
+                        "OUTPUT_TREE_FILE", help="Phylogenetic tree is "
+                        "generated from the original alignment file.")
 
     parser.add_argument("-T", "--tree-format",
                         help="File format of output tree files. Default is "
@@ -169,16 +169,16 @@ def main():
     else:
         input_file = sys.stdin
 
-    if args.output:
-        output_file = open(args.output, "w")
-    else:
-        output_file = sys.stdout
-
     input_format = "fasta" if not args.input_format else args.input_format
     output_format = "fasta" if not args.output_format else args.output_format
 
     original_msa = AlignIO.read(input_file, input_format)
     reduced_msa = filter_noise_in_columns(original_msa, is_noisy)
+
+    if args.output:
+        output_file = open(args.output, "w")
+    else:
+        output_file = sys.stdout
 
     AlignIO.write(reduced_msa, output_file, output_format)
 
