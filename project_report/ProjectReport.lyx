@@ -420,6 +420,84 @@ optional arguments:
 Validation of reduce-noise Python script 
 \end_layout
 
+\begin_layout Standard
+To test the correctness of our scripts, various control cases were made,
+ which are as follows:
+\end_layout
+
+\begin_layout Enumerate
+Empty data set
+\end_layout
+
+\begin_layout Enumerate
+A file with a single aligned sequence
+\end_layout
+
+\begin_layout Enumerate
+A fasta file with aligned sequences with more than 50% indels 
+\end_layout
+
+\begin_layout Enumerate
+A fasta file with aligned sequences in which there are at least 50% unique
+ amino acids
+\end_layout
+
+\begin_layout Enumerate
+Multiple sequence alignment file in which no amino acid appears more than
+ twice.
+ 
+\end_layout
+
+\begin_layout Enumerate
+10 random fasta files containing 10 protein sequences, 150 a.a in length,
+ each.
+ 
+\end_layout
+
+\begin_layout Standard
+Data sets containing one of each type of the noise criteria were created
+ using real protein sequences from 
+\begin_inset CommandInset href
+LatexCommand href
+name "Uniprot"
+target "http://uniprot.org"
+
+\end_inset
+
+.
+ The random protein sequences were generated using the following tools:
+ 
+\end_layout
+
+\begin_layout Enumerate
+\begin_inset CommandInset href
+LatexCommand href
+name "Sequence Manipulation Suite "
+target "http://www.bioinformatics.org/sms2/random_protein.html"
+
+\end_inset
+
+(SMS) 
+\end_layout
+
+\begin_layout Enumerate
+\begin_inset CommandInset href
+LatexCommand href
+name "RandSeq "
+target "http://web.expasy.org/randseq/ "
+
+\end_inset
+
+- Random protein sequence generator (With option: Average amino acid composition
+ computed from Swiss-Prot) 
+\end_layout
+
+\begin_layout Standard
+All the control data was succesfully run by our scripts, the results of
+ which are discussed in detail in section 3.
+ 
+\end_layout
+
 \begin_layout Subsection
 Running reduce-noise Python script on test data set
 \end_layout
@@ -833,6 +911,22 @@ Results and Discussion
 \end_layout
 
 \begin_layout Standard
+The purpose of using controls is to ensure not only that our program is
+ working properly, but to see if our results are understadable.
+ The corner cases such as the empty file as well as the file with the single
+ aligned sequence generated an exception, was detected by the program.
+ The program contains Biopython which automatically handles exceptions if
+ the input file is incorrect, and stops the program from executing.
+ In the case remaining control test cases, upon running the noise reduction
+ script, we observed that the program correctly filters out the noisy columns.
+ When all of the columns are filtered as noise the program gives a meaningful
+ error message.
+ The outcome after running our scripts on the control data was as expected,
+ therefore we concluded the correctness of our program.
+ 
+\end_layout
+
+\begin_layout Standard
 Even though euclidian and Robinson-Foulds distances of the concerned newick
  trees are also calculated, since it is observed that the differences between
  the euclidian and Robinson-Foulds distances are much smaller then symmetric
@@ -852,7 +946,15 @@ reference "tab:Statistics-regarding-the"
  This table displays that in general the newick trees of the noise reduced
  multialignments have slightly bigger symmetric distances with the reference
  trees than the newick trees of the original multialignments have.
- Additionally, Figure 
+ A reason for this may be due to the fact that the originla trees are directly
+ evolved from the reference tree, whereas the noise reduced trees are generated
+ by applying extra operations on their evolution.
+ It is interesting to note that the Medians for both the Asymmetric and
+ Symmetric trees with a mutation rate of 0.5 are equal.
+\end_layout
+
+\begin_layout Standard
+Additionally, Figure 
 \begin_inset CommandInset ref
 LatexCommand ref
 reference "fig:Results-of-the"
