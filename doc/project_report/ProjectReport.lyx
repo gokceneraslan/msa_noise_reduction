@@ -6,6 +6,8 @@
 \begin_preamble
 \usepackage{booktabs}
 \usepackage{graphicx}
+\usepackage{minted}
+\usepackage{caption}
 \end_preamble
 \use_default_options true
 \maintain_unincluded_children false
@@ -66,7 +68,7 @@
 \begin_body
 
 \begin_layout Title
-Reducing noise in protein multialignments
+Noise reduction in protein multialignments
 \end_layout
 
 \begin_layout Author
@@ -165,9 +167,9 @@ no amino acid appears more than twice.
 \begin_layout Standard
 In order to validate the method implementation, null data is used as input
  and the outputs are verified.
- Thereafter, the method is applied on data which consists of six directories
- that each contains the reference tree and 300 multialignments derived from
- that tree by simulation.
+ Thereafter, the method is applied on data consisting of six directories
+ each of which contains the reference tree and 300 multialignments derived
+ from that tree by simulation.
  After generating the noise-reduced counterparts of the multialignments,
  newick trees corresponding to both the original multialignmens and the
  noise-reduced multialignmens are created by using fasttree submodule of
@@ -213,7 +215,7 @@ ced multialignments and produces the newick trees of both the original and
 A file (in formats: newick, xml ) which contains the newick tree of the
  original multialignment.
  Additionally, a file (in formats: png, pdf, svg) which displays this phylogenet
-ic tree visually can be generated optionally using 
+ic tree visually can be generated optionally by the help of the 
 \begin_inset CommandInset href
 LatexCommand href
 name "ete2"
@@ -226,13 +228,12 @@ target "http://ete.cgenomics.org/"
 
 \begin_layout Enumerate
 A file (in formats: fasta, clustal, phylip, stockholm, emboss) which contains
- the noise-reduced counterpart multialignment of the original input multialignme
-nt
+ the noise-reduced counterpart of the original input multialignment
 \end_layout
 
 \begin_layout Enumerate
-A file (in formats: newick, xml ) which contains the newick tree of the
- noise-reduced multialignment.
+A file (in formats: newick, xml ) containing the newick tree of the noise-reduce
+d multialignment.
  Additionally, a file (in formats: png, pdf, svg) which displays this phylogenet
 ic tree visually can be generated optionally.
 \end_layout
@@ -417,6 +418,45 @@ optional arguments:
 \end_layout
 
 \begin_layout Subsection
+Laboratory notebook
+\end_layout
+
+\begin_layout Standard
+We have written laboratory notebook as a Markdown
+\begin_inset Foot
+status open
+
+\begin_layout Plain Layout
+Markdown is a lightweight markup language allowing people to write using
+ an easy-to-read, easy-to-write plain text format, then convert it to structural
+ly valid HTML”.
+\end_layout
+
+\end_inset
+
+ formatted file and converted this file to a HTML file using a simple Python
+ script (which is also included in the Appendix section) and a neat HTML
+ template from the 
+\begin_inset CommandInset href
+LatexCommand href
+name "Strapdown.js"
+target "http://strapdownjs.com/"
+
+\end_inset
+
+ project.
+ 
+\begin_inset CommandInset href
+LatexCommand href
+name "Laboratory notebook file"
+target "https://github.com/gokceneraslan/msa_noise_reduction/blob/master/results/lab_notebook.html"
+
+\end_inset
+
+ can be accessed from the GitHub project.
+\end_layout
+
+\begin_layout Subsection
 Validation of reduce-noise Python script 
 \end_layout
 
@@ -430,21 +470,22 @@ Empty data set
 \end_layout
 
 \begin_layout Enumerate
-A file with a single aligned sequence
+A file with a single sequence
 \end_layout
 
 \begin_layout Enumerate
-A fasta file with aligned sequences with more than 50% indels 
+A fasta file with aligned sequences where most of the columns are with more
+ than 50% indels 
 \end_layout
 
 \begin_layout Enumerate
-A fasta file with aligned sequences in which there are at least 50% unique
- amino acids
+A fasta file with aligned sequences where most of the columns have at least
+ 50% unique amino acids
 \end_layout
 
 \begin_layout Enumerate
-Multiple sequence alignment file in which no amino acid appears more than
- twice.
+A fasta file with aligned sequences where in any column none of the amino
+ acids appear more than twice.
  
 \end_layout
 
@@ -505,9 +546,9 @@ Running reduce-noise Python script on test data set
 \begin_layout Standard
 The test data contains six directories: asymmetric_0.5, asymmetric_1.0, asymmetric
 _2.0, symmetric_0.5, symmetric_1.0, and symmetric_2.0.
- Each directory contains one tree file having a reference tree, and 300
- alignments that were created by evolving sequences along the reference
- tree and then using muscle programme to align the resulting sequences.
+ Each directory contains one tree file having a reference tree and 300 alignment
+s that were created by evolving sequences along the reference tree with
+ further alignment on the resulting sequences by using the muscle programme.
  The number in the filename denotes the average amount of mutations per
  site in the sequences.
  For example, the asymmetric_2.0 and symmetric_2.0 directories has alignments
@@ -583,8 +624,8 @@ $ ./reduce_noise
 \end_layout
 
 \begin_layout Standard
-In order to show an example of the outcome columns of noise reducing operation,
- In Figures 
+In order to show an example of the outcome columns of noise reduction operation,
+ in Figures 
 \begin_inset CommandInset ref
 LatexCommand ref
 reference "fig:Original-multialignment-of"
@@ -599,7 +640,7 @@ reference "fig:Noise-reduced-multialignment-of"
 \end_inset
 
 , the columns in s001.align.1 data in Asymmetric 2.0 data set is shown in its
- original form and after the noise reducing operation is applied to them.
+ original form and after the noise reduction operation is applied to them.
  In this example, we observe that the columns which do not satisfy the given
  constraints are filtered out as they are considered to be noisy.
 \end_layout
@@ -609,10 +650,6 @@ reference "fig:Noise-reduced-multialignment-of"
 wide false
 sideways false
 status open
-
-\begin_layout Plain Layout
-
-\end_layout
 
 \begin_layout Plain Layout
 \begin_inset Caption
@@ -762,7 +799,7 @@ reference "fig:Noise-red-newick-tree-corresponding"
  Since the differences between the euclidian and Robinson-Foulds distances
  are much smaller then symmetric distances for all of the six data sets,
  only the symmetric distances are taken into account while the statistics
- in the results and discussion section are prepared.
+ which are represented in the results and discussion section are prepared.
  
 \end_layout
 
@@ -771,10 +808,6 @@ reference "fig:Noise-red-newick-tree-corresponding"
 wide false
 sideways false
 status open
-
-\begin_layout Plain Layout
-
-\end_layout
 
 \begin_layout Plain Layout
 \begin_inset Caption
@@ -803,10 +836,6 @@ name "fig:Reference-newick-tree"
 
 \end_inset
 
-
-\end_layout
-
-\begin_layout Plain Layout
 
 \end_layout
 
@@ -865,10 +894,6 @@ sideways false
 status open
 
 \begin_layout Plain Layout
-
-\end_layout
-
-\begin_layout Plain Layout
 \begin_inset Caption
 
 \begin_layout Plain Layout
@@ -897,10 +922,6 @@ name "fig:Noise-red-newick-tree-corresponding"
 
 \end_layout
 
-\begin_layout Plain Layout
-
-\end_layout
-
 \end_inset
 
 
@@ -914,15 +935,14 @@ Results and Discussion
 The purpose of using controls is to ensure not only that our program is
  working properly, but to see if our results are understadable.
  The corner cases such as the empty file as well as the file with the single
- aligned sequence generated an exception, was detected by the program.
- The program contains Biopython which automatically handles exceptions if
- the input file is incorrect, and stops the program from executing.
- In the case remaining control test cases, upon running the noise reduction
- script, we observed that the program correctly filters out the noisy columns.
- When all of the columns are filtered as noise the program gives a meaningful
+ aligned sequence which generates an exception, are handled successfully
+ by the program.
+ In the remaining control test cases, upon running the noise reduction script,
+ it is observed that the program correctly filteres out the noisy columns.
+ When all of the columns are filtered as noise, the program gives a meaningful
  error message.
- The outcome after running our scripts on the control data was as expected,
- therefore we concluded the correctness of our program.
+ The outcomes after running our scripts on the control data are as expected,
+ therefore the correctness of our program is concluded.
  
 \end_layout
 
@@ -946,11 +966,10 @@ reference "tab:Statistics-regarding-the"
  This table displays that in general the newick trees of the noise reduced
  multialignments have slightly bigger symmetric distances with the reference
  trees than the newick trees of the original multialignments have.
- A reason for this may be due to the fact that the originla trees are directly
+ A reason for this may be due to the fact that the original trees are directly
  evolved from the reference tree, whereas the noise reduced trees are generated
  by applying extra operations on their evolution.
- It is interesting to note that the Medians for both the Asymmetric and
- Symmetric trees with a mutation rate of 0.5 are equal.
+ 
 \end_layout
 
 \begin_layout Standard
@@ -2037,32 +2056,176 @@ Symmetric distance values between the newick trees of original, noise-reduced
 \end_layout
 
 \begin_layout Subsubsection
+Project Layout
+\end_layout
+
+\begin_layout Standard
+\begin_inset listings
+inline false
+status open
+
+\begin_layout Plain Layout
+├── ./bin/
+\end_layout
+
+\begin_layout Plain Layout
+│   ├── ./bin/compare_trees*
+\end_layout
+
+\begin_layout Plain Layout
+│   ├── ./bin/generate_outputs.sh*
+\end_layout
+
+\begin_layout Plain Layout
+│   ├── ./bin/markdown2html*
+\end_layout
+
+\begin_layout Plain Layout
+│   └── ./bin/reduce_noise*
+\end_layout
+
+\begin_layout Plain Layout
+├── ./data/
+\end_layout
+
+\begin_layout Plain Layout
+│   ├── ./data/control_data/
+\end_layout
+
+\begin_layout Plain Layout
+│   ├── ./data/noise_reduced/
+\end_layout
+
+\begin_layout Plain Layout
+│   └── ./data/original_alignments/
+\end_layout
+
+\begin_layout Plain Layout
+├── ./doc/
+\end_layout
+
+\begin_layout Plain Layout
+│   └── ./doc/project_report/
+\end_layout
+
+\begin_layout Plain Layout
+├── ./output
+\end_layout
+
+\begin_layout Plain Layout
+└── ./results/
+\end_layout
+
+\begin_layout Plain Layout
+    ├── ./results/2012-12-23/
+\end_layout
+
+\begin_layout Plain Layout
+    ├── ./results/lab_notebook.html
+\end_layout
+
+\begin_layout Plain Layout
+    └── ./results/lab_notebook.markdown
+\end_layout
+
+\end_inset
+
+
+\end_layout
+
+\begin_layout Subsubsection
 Python Codes
 \end_layout
 
+\begin_layout Paragraph
+reduce_noise script
+\end_layout
+
 \begin_layout LyX-Code
-\begin_inset CommandInset include
-LatexCommand lstinputlisting
-filename "reduce_noise"
-lstparams "basicstyle={\\footnotesize},breaklines=true,caption={``reduce\\_noise'' script},columns=flexible,frame={tb},language=Python,numbers=left,numberstyle={\\footnotesize}"
+\begin_inset ERT
+status open
+
+\begin_layout Plain Layout
+
+
+\backslash
+captionof{listing}{``reduce
+\backslash
+_noise'' script}
+\end_layout
+
+\begin_layout Plain Layout
+
+
+\backslash
+inputminted[linenos,fontsize=
+\backslash
+small]{python}{"/home/gokcen/Dropbox/KTH/Applied Bioinformatics/reduce_noise"}
+\end_layout
 
 \end_inset
 
 
 \end_layout
 
+\begin_layout Paragraph
+compare_trees script
+\end_layout
+
 \begin_layout LyX-Code
-\begin_inset CommandInset include
-LatexCommand lstinputlisting
-filename "compare_trees"
-lstparams "basicstyle={\\footnotesize},breaklines=true,caption={``compare\\_trees'' script},columns=flexible,frame={tb},language=Python,numbers=left,numberstyle={\\footnotesize}"
+\begin_inset ERT
+status open
+
+\begin_layout Plain Layout
+
+
+\backslash
+captionof{listing}{``compare
+\backslash
+_trees'' script}
+\end_layout
+
+\begin_layout Plain Layout
+
+
+\backslash
+inputminted[linenos,fontsize=
+\backslash
+small]{python}{"/home/gokcen/Dropbox/KTH/Applied Bioinformatics/compare_trees"}
+\end_layout
 
 \end_inset
 
 
 \end_layout
 
+\begin_layout Paragraph
+markdown2html script
+\end_layout
+
 \begin_layout LyX-Code
+\begin_inset ERT
+status open
+
+\begin_layout Plain Layout
+
+
+\backslash
+captionof{listing}{``markdown2html'' script used to generate nice HTML formatted
+ lab notebook}
+\end_layout
+
+\begin_layout Plain Layout
+
+
+\backslash
+inputminted[linenos,fontsize=
+\backslash
+small]{python}{"/home/gokcen/Dropbox/KTH/Applied Bioinformatics/markdown2html"}
+\end_layout
+
+\end_inset
+
 
 \end_layout
 
